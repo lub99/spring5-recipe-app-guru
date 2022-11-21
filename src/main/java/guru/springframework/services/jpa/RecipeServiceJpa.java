@@ -52,7 +52,7 @@ public class RecipeServiceJpa implements RecipeService {
         Optional<Recipe> optionalRecipe = recipeRepository.findById(id);
 
         if (!optionalRecipe.isPresent()){
-            throw new NotFoundException("Recipe Not Found!");
+            throw new NotFoundException("Recipe Not Found! Recipe ID value: " + id);
         }
 
         return optionalRecipe.get();
