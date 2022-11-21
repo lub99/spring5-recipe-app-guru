@@ -3,6 +3,7 @@ package guru.springframework.services.jpa;
 import guru.springframework.domain.Ingredient;
 import guru.springframework.domain.Recipe;
 import guru.springframework.dtos.RecipeDto;
+import guru.springframework.exceptions.NotFoundException;
 import guru.springframework.mappers.RecipeMapper;
 import guru.springframework.repositories.RecipeRepository;
 import org.junit.Before;
@@ -70,12 +71,23 @@ public class RecipeServiceJpaTest {
         verify(recipeRepository, times(1)).findById(anyLong());
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
+    public void getRecipeByIdTestNotFound() {
+        Optional<Recipe> recipeOptionalEmpty = Optional.empty();
+        when(recipeRepository.findById(anyLong())).thenReturn(recipeOptionalEmpty);
+
+        Recipe foundRecipe = service.findById(recipeId);
+
+        //exception throw expected here
+    }
+
+    @Test(expected = NotFoundException.class)
     public void testDeleteById() {
         service.deleteById(recipeId);
 
         verify(recipeRepository, times(1)).deleteById(anyLong());
-        assertNull(service.findById(recipeId));
+        // this will throw error
+        service.findById(recipeId);
     }
 
     @Test

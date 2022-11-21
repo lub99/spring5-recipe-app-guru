@@ -2,10 +2,10 @@ package guru.springframework.controllers;
 
 import guru.springframework.domain.Recipe;
 import guru.springframework.dtos.RecipeDto;
+import guru.springframework.exceptions.NotFoundException;
 import guru.springframework.services.RecipeService;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
@@ -42,7 +42,7 @@ public class RecipeControllerTest {
     }
 
     @Test
-    public void showById() throws Exception {
+    public void getRecipe() throws Exception {
         Recipe mockRecipe = Recipe.builder()
                 .id(id)
                 .build();
@@ -52,6 +52,14 @@ public class RecipeControllerTest {
         mockMvc.perform(get("/recipe/" + id + "/show"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("recipe/show"));
+    }
+
+    @Test
+    public void getRecipeNotFound() throws Exception {
+        when(recipeService.findById(anyLong())).thenThrow(NotFoundException.class);
+
+        mockMvc.perform(get("/recipe/" + id + "/show"))
+                .andExpect(status().isNotFound());
     }
 
     @Test

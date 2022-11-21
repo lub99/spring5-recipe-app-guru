@@ -2,6 +2,7 @@ package guru.springframework.services.jpa;
 
 import guru.springframework.domain.Recipe;
 import guru.springframework.dtos.RecipeDto;
+import guru.springframework.exceptions.NotFoundException;
 import guru.springframework.mappers.RecipeMapper;
 import guru.springframework.repositories.RecipeRepository;
 import guru.springframework.services.RecipeService;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -47,7 +49,13 @@ public class RecipeServiceJpa implements RecipeService {
 
     @Override
     public Recipe findById(Long id) {
-        return recipeRepository.findById(id).orElse(null);
+        Optional<Recipe> optionalRecipe = recipeRepository.findById(id);
+
+        if (!optionalRecipe.isPresent()){
+            throw new NotFoundException("Recipe Not Found!");
+        }
+
+        return optionalRecipe.get();
     }
 
     @Override
