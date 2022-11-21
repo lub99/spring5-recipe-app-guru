@@ -7,13 +7,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.validation.Valid;
 
 @Slf4j
 @Controller
 @RequestMapping("/recipe")
 public class RecipeController {
+    public static final String RECIPE_RECIPEFORM = "recipe/recipeform";
     private final RecipeService recipeService;
 
     public RecipeController(RecipeService recipeService) {
@@ -33,7 +37,7 @@ public class RecipeController {
     public String newRecipe(Model model){
         log.debug("Returning form to create new recipe");
         model.addAttribute("recipe", new RecipeDto());
-        return "recipe/recipeform";
+        return RECIPE_RECIPEFORM;
     }
 
 
@@ -41,12 +45,23 @@ public class RecipeController {
     public String updateRecipe(@PathVariable String id, Model model){
         log.debug("Retrieving from db recipe to update in form");
         model.addAttribute("recipe", recipeService.getRecipeDtoById(Long.valueOf(id)));
-        return "recipe/recipeform";
+        return RECIPE_RECIPEFORM;
     }
 
 
     @PostMapping("")
-    public String newOrUpdate(@ModelAttribute RecipeDto recipeDto){
+    public String newOrUpdate(@Valid @ModelAttribute("recipe") RecipeDto recipeDto, BindingResult bindingResult){
+
+        if (bindingResult.hasErrors()){
+            bindingResult.getAllErrors()
+                    .forEach( objectError ->
+                            {
+                                log.debug(objectError.toString());
+                            }
+                    );
+            return RECIPE_RECIPEFORM;
+        }
+
         log.debug("Creating new or updating existing recipe");
         RecipeDto savedRecipeDto = recipeService.saveRecipeDto(recipeDto);
         return "redirect:/recipe/" + savedRecipeDto.getId() + "/show";

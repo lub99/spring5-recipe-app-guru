@@ -92,12 +92,30 @@ public class RecipeControllerTest {
         mockMvc.perform(post("/recipe")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .param("id", "")
-                        .param("description", "My description"))
+                        .param("description", "My description")
+                        .param("directions", "My directions"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/recipe/" + id + "/show"));
         //then
         verify(recipeService, times(1)).saveRecipeDto(any());
 
+    }
+
+    /**
+     * Missing description, directions for recipe
+     * **/
+    @Test
+    public void postNewRecipeFormValidationFail() throws Exception {
+        //given
+        when(recipeService.saveRecipeDto(any())).thenReturn(recipeDto);
+
+        //when
+        mockMvc.perform(post("/recipe")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("id", ""))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("recipe"))
+                .andExpect(view().name("recipe/recipeform"));
     }
 
     @Test
